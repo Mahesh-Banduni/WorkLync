@@ -4,6 +4,6 @@
 This dashboard helps HR team to effectively manage job candidates, working employees data, employee attendance and employees leaves.
 
 **Tech Stack:-**
-*Frontend- Next.js, Tailwind CSS, Redux*
-*Backend- Node.js, Express.js, Prisma*
-*Database:- PostgreSQL*
+1. Frontend- Next.js, Tailwind CSS, Redux
+2. Backend- Node.js, Express.js, Prisma
+3. Database:- PostgreSQL
