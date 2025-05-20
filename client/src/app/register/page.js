@@ -12,9 +12,9 @@ export default function Home() {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col md:flex-row flex-grow px-4 md:px-10 pb-10 gap-6">
+      <div className="flex flex-col md:flex-row flex-grow px-4 md:px-10 pb-10 gap-6 shadow-2xl">
         {/* Left Side */}
-        <div className="w-full md:w-1/2 bg-purple-800 rounded-lg p-6 flex flex-col justify-center">
+        <div className="w-full md:w-1/2 bg-purple-800 rounded-lg py-10 flex flex-col justify-center px-10 lg:px-20 xl:px-20">
           <div className="flex flex-col items-center">
             <Image
               src="/images/landing.png"
@@ -25,7 +25,7 @@ export default function Home() {
             />
             <div className="text-white text-center mt-4 px-2 md:px-4">
               <p className="text-lg md:text-xl">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. sed do eiusmod
               </p>
               <p className="text-sm mt-4">
                 Tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.

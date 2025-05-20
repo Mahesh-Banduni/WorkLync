@@ -5,9 +5,10 @@ const helmet = require("helmet");
 const crypto = require("crypto");
 const { errorHandler } = require("./middlewares/error.handler.js");
 const authRoutes = require("./routes/auth.route.js");
-const registerRoutes = require("./routes/user.route.js");
+const userRoutes = require("./routes/user.route.js");
 const employeeRoutes = require("./routes/employee.route.js");
 const candidateRoutes = require("./routes/candidate.route.js");
+const bodyParser = require("body-parser");
 
 require("dotenv").config();
 
@@ -61,9 +62,11 @@ server.use(
 );
 
 server.use(express.json());
+server.use(express.urlencoded({extended: true}));
+server.use(bodyParser.json())
 
 // Route setup
-server.use("/api/register", registerRoutes);
+server.use("/api/register", userRoutes);
 server.use("/api/auth", authRoutes);
 server.use("/api/employee", employeeRoutes);
 server.use("/api/candidate", candidateRoutes);
@@ -94,5 +97,5 @@ server.use(errorHandler);
 // Start the server
 const port = process.env.SOURCE_PORT || 3000;
 server.listen(port, () => {
-  console.log(`Server is listening at port ${port}`);
+  console.log(`Server is listening at http://${process.env.SOURCE}:${port}`);
 });

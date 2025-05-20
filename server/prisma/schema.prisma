@@ -55,7 +55,7 @@ model Candidate {
   resumefileUrl     String
   email             String            @unique
   phoneNumber       String
-  position          String
+  position          PositionType  
   applicationStatus ApplicationStatus @default(New)
   yearsOfExperience Float
   createdAt         DateTime          @default(now())
