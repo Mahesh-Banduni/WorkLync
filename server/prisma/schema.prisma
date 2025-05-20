@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String?
+  role      UserRole  @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  employee  Employee?
+}
+
+model Employee {
+  id               String           @id @default(uuid())
+  name             String
+  dateOfJoining    DateTime
+  position         PositionType
+  phoneNumber      String
+  department       String
+  email            String           @unique
+  attendanceStatus AttendanceStatus
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  userId           String?          @unique
+  user             User?            @relation(fields: [userId], references: [id])
+  leaves           Leave[]
+}
+
+model Leave {
+  id          String      @id @default(uuid())
+  date        DateTime
+  employeeId  String
+  reason      String
+  department  String
+  documentUrl String?
+  status      LeaveStatus @default(Pending)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  employee    Employee    @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+}
+
+model Candidate {
+  id                String            @id @default(uuid())
+  name              String
+  resumefileUrl     String
+  email             String            @unique
+  phoneNumber       String
+  position          String
+  applicationStatus ApplicationStatus @default(New)
+  yearsOfExperience Float
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum AttendanceStatus {
+  Present
+  Absent
+  Medical_Leave
+  Work_From_Home
+}
+
+enum LeaveStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+enum ApplicationStatus {
+  New
+  Scheduled
+  Ongoing
+  Selected
+  Rejected
+}
+
+enum PositionType {
+  Intern
+  Full_Time
+  Junior
+  Senior
+  Team_Lead
+}
