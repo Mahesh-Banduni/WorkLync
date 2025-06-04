@@ -1,6 +1,6 @@
 const cloudinary = require('../configs/cloudinary.config.js');
 
-const uploadFile = async (file, folder = process.env.CLOUDINARY_FOLDER_NAME || 'documents') => {
+const uploadFile = async (file, folder = process.env.CLOUDINARY_FOLDER_NAME || 'hrms') => {
   if (!file || !file.buffer) {
     console.error('File is empty or missing buffer:', file);
     return null;

@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 
 // Create a new candidate profile with resume upload
 const createCandidate = async (candidateData, resumeFile) => {
-    console.log(candidateData)
+    console.log(resumeFile)
   // Check if candidate exists
   const existing = await prisma.candidate.findUnique({ where: { email: candidateData.email } });
   if (existing) throw new ConflictError('Candidate with this email already exists');
@@ -31,6 +31,7 @@ const createCandidate = async (candidateData, resumeFile) => {
 
 // Download candidate's resume (returns the Cloudinary URL)
 const getCandidateResumeUrl = async (candidateId) => {
+  console.log(candidateId)
   const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
   if (!candidate) throw new NotFoundError('Candidate not found');
   if (!candidate.resumefileUrl) throw new NotFoundError('Resume not found');
@@ -82,6 +83,7 @@ const searchCandidates = async (filters) => {
 };
 
 const getCandidateById = async (candidateId) => {
+  console.log(candidateId)
   const candidate = await prisma.candidate.findUnique({
     where: { id: candidateId },
   });

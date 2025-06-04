@@ -1,9 +1,15 @@
 const userService = require("../services/user.service.js");
+const {
+  ConflictError,
+  NotFoundError,
+  BadRequestError,
+} = require("../errors/errors.js");
 
 // Create a new user
 const createUser = async (req, res, next) => {
   try {
     const { response, user } = await userService.createUser(req.body);
+
     res.status(201).json({
       messagwe: "User Registered Successfully",
       user: { user },
@@ -18,6 +24,9 @@ const createUser = async (req, res, next) => {
 const getAllUsers = async (req, res, next) => {
   try {
     const users = await userService.getAllUsers();
+    if(!users.data){
+      throw new NotFoundError("Users not found");
+    }
     res.status(200).json({
       data: users,
     });

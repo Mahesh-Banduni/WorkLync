@@ -66,7 +66,7 @@ server.use(express.urlencoded({extended: true}));
 server.use(bodyParser.json())
 
 // Route setup
-server.use("/api/register", userRoutes);
+server.use("/api/user", userRoutes);
 server.use("/api/auth", authRoutes);
 server.use("/api/employee", employeeRoutes);
 server.use("/api/candidate", candidateRoutes);
@@ -97,5 +97,5 @@ server.use(errorHandler);
 // Start the server
 const port = process.env.SOURCE_PORT || 3000;
 server.listen(port, () => {
-  console.log(`Server is listening at http://${process.env.SOURCE}:${port}`);
+  console.log(`Server is listening at ${process.env.HOSTNAME}`);
 });

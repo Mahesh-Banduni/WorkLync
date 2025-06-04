@@ -3,7 +3,6 @@ const candidateService = require("../services/candidate.service.js");
 // Create a new candidate (with resume upload)
 const createCandidate = async (req, res, next) => {
   try {
-    console.log(req.body);
     const candidate = await candidateService.createCandidate(req.body, req.file);
     res.status(201).json({
       message: "Candidate profile created successfully",
@@ -18,9 +17,10 @@ const createCandidate = async (req, res, next) => {
 const getAllCandidates = async (req, res, next) => {
   try {
     const filters = req.query;
+    console.log(filters);
     const candidates = await candidateService.searchCandidates(filters);
     res.status(200).json({
-      data: candidates,
+      candidates,
     });
   } catch (error) {
     next(error);
@@ -43,7 +43,10 @@ const getCandidateById = async (req, res, next) => {
 const downloadResume = async (req, res, next) => {
   try {
     const url = await candidateService.getCandidateResumeUrl(req.params.id);
-    res.redirect(url);
+    res.status(200).json({
+      message: "Resume URL retrieved successfully",
+      url,
+    });
   } catch (error) {
     next(error);
   }
@@ -52,6 +55,7 @@ const downloadResume = async (req, res, next) => {
 // Move selected candidate to employee
 const moveToEmployee = async (req, res, next) => {
   try {
+    console.log(req.params.id);
     const employee = await candidateService.moveCandidateToEmployee(req.params.id);
     res.status(200).json({
       message: "Candidate moved to employee successfully",
