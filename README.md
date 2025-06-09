@@ -1,7 +1,7 @@
-***HR Management System Dashboard***
+***WorkLync***
 
 **Purpose:-**
-This dashboard helps HR team to effectively manage job candidates, working employees data, employee attendance and employees leaves.
+This platforms helps people and teams to effectively manage job candidates, employees tasks, employee attendance and employees leaves.
 
 **Tech Stack:-**
 1. Frontend- Next.js, Tailwind CSS, Redux
