@@ -21,7 +21,7 @@ const auth = (req, res, next) => {
     }
     
     req.user = user; // Attach the decoded token payload to request
-    console.log(user);
+    //console.log(user);
     next(); // Proceed to the next middleware or route handler
   });
 };

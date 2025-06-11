@@ -8,11 +8,12 @@ const {
 // Create a new user
 const createUser = async (req, res, next) => {
   try {
-    const { response, user } = await userService.createUser(req.body);
+    const adminId= req.user.id;
+    const { response, user } = await userService.createUser(adminId, req.body);
 
     res.status(201).json({
       messagwe: "User Registered Successfully",
-      user: { user },
+      data: { user },
       token: {response}
     });
   } catch (error) {
@@ -22,13 +23,14 @@ const createUser = async (req, res, next) => {
 
 // Get all users
 const getAllUsers = async (req, res, next) => {
+  const adminId= req.user.id;
   try {
-    const users = await userService.getAllUsers();
-    if(!users.data){
+    const users = await userService.getAllUsers(adminId);
+    if(!users){
       throw new NotFoundError("Users not found");
     }
     res.status(200).json({
-      data: users,
+      data: {users},
     });
   } catch (error) {
     next(error);
@@ -38,7 +40,9 @@ const getAllUsers = async (req, res, next) => {
 // Get user by ID
 const getUserById = async (req, res, next) => {
   try {
-    const user = await userService.getUserById(req.user.id);
+    const adminId= req.user.id;
+    const userId=req.params.id;
+    const user = await userService.getUserById(adminId, userId);
     res.status(200).json({
       data: user,
     });
@@ -50,7 +54,9 @@ const getUserById = async (req, res, next) => {
 // Update user by ID
 const updateUser = async (req, res, next) => {
   try {
-    const updatedUser = await userService.updateUser(req.user.id, req.body);
+    const adminId= req.user.id;
+    const userId=req.params.id;
+    const updatedUser = await userService.updateUser(adminId, userId, req.body);
     res.status(200).json({
       message: "User Details Updated Successfully",
       user: updatedUser,
@@ -63,7 +69,9 @@ const updateUser = async (req, res, next) => {
 // Delete user by ID
 const deleteUser = async (req, res, next) => {
   try {
-    await userService.deleteUser(req.user.id);
+    const adminId= req.user.id;
+    const userId=req.params.id;
+    await userService.deleteUser(adminId, userId);
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     next(error);

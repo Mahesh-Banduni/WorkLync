@@ -12,8 +12,8 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.9.0",
+    "backblaze-b2": "^1.7.1",
     "body-parser": "^2.2.0",
-    "cloudinary": "^2.6.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",

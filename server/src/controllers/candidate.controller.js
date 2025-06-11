@@ -3,7 +3,8 @@ const candidateService = require("../services/candidate.service.js");
 // Create a new candidate (with resume upload)
 const createCandidate = async (req, res, next) => {
   try {
-    const candidate = await candidateService.createCandidate(req.body, req.file);
+    const adminId= req.user.id;
+    const candidate = await candidateService.createCandidate(adminId, req.body, req.file);
     res.status(201).json({
       message: "Candidate profile created successfully",
       candidate,
@@ -16,9 +17,9 @@ const createCandidate = async (req, res, next) => {
 // Get all candidates (with optional filters/search)
 const getAllCandidates = async (req, res, next) => {
   try {
+    const adminId= req.user.id;
     const filters = req.query;
-    console.log(filters);
-    const candidates = await candidateService.searchCandidates(filters);
+    const candidates = await candidateService.getAllCandidates(adminId, filters);
     res.status(200).json({
       candidates,
     });
@@ -30,7 +31,9 @@ const getAllCandidates = async (req, res, next) => {
 // Get candidate by ID
 const getCandidateById = async (req, res, next) => {
   try {
-    const candidate = await candidateService.getCandidateById(req.params.id);
+    const adminId= req.user.id;
+    const userId=req.params.id;
+    const candidate = await candidateService.getCandidateById(adminId, userId);
     res.status(200).json({
       data: candidate,
     });
@@ -42,10 +45,12 @@ const getCandidateById = async (req, res, next) => {
 // Download candidate's resume (returns Cloudinary URL)
 const downloadResume = async (req, res, next) => {
   try {
-    const url = await candidateService.getCandidateResumeUrl(req.params.id);
+    const adminId= req.user.id;
+    const userId= req.params.id;
+    const url = await candidateService.getCandidateResumeUrl(adminId, userId);
     res.status(200).json({
       message: "Resume URL retrieved successfully",
-      url,
+      data: {url},
     });
   } catch (error) {
     next(error);
@@ -55,8 +60,9 @@ const downloadResume = async (req, res, next) => {
 // Move selected candidate to employee
 const moveToEmployee = async (req, res, next) => {
   try {
-    console.log(req.params.id);
-    const employee = await candidateService.moveCandidateToEmployee(req.params.id);
+    const adminId= req.user.id;
+    const userId= req.params.id;
+    const employee = await candidateService.moveCandidateToEmployee(adminId, userId);
     res.status(200).json({
       message: "Candidate moved to employee successfully",
       employee,
@@ -69,7 +75,9 @@ const moveToEmployee = async (req, res, next) => {
 // Delete candidate by ID
 const deleteCandidate = async (req, res, next) => {
   try {
-    await candidateService.deleteCandidate(req.params.id);
+    const adminId= req.user.id;
+    const userId= req.params.id;
+    await candidateService.deleteCandidate(adminId, userId);
     res.status(200).json({ message: "Candidate deleted successfully" });
   } catch (error) {
     next(error);

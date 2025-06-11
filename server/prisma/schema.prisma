@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
+  userId        String    @id @default(uuid())
   email     String    @unique
   password  String
   name      String?
@@ -17,10 +17,11 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   employee  Employee?
+  candidate Candidate?
 }
 
 model Employee {
-  id               String           @id @default(uuid())
+  employeeId               String           @id @default(uuid())
   name             String
   dateOfJoining    DateTime
   position         PositionType
@@ -31,27 +32,14 @@ model Employee {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   userId           String?          @unique
-  user             User?            @relation(fields: [userId], references: [id])
+  user             User?            @relation(fields: [userId], references: [userId])
   leaves           Leave[]
-}
-
-model Leave {
-  id          String      @id @default(uuid())
-  date        DateTime
-  employeeId  String
-  reason      String
-  department  String
-  documentUrl String?
-  status      LeaveStatus @default(Pending)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  employee    Employee    @relation(fields: [employeeId], references: [id])
-
-  @@index([employeeId])
+  candidateId      String?          @unique
+  candidate        Candidate?       @relation(fields: [candidateId], references: [userId])
 }
 
 model Candidate {
-  id                String            @id @default(uuid())
+  candidateId                String            @id @default(uuid())
   name              String
   resumefileUrl     String
   email             String            @unique
@@ -61,6 +49,25 @@ model Candidate {
   yearsOfExperience Float
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
+  userId            String?           @unique
+  user              User?             @relation(fields: [userId], references: [userId])
+  employee           Employee?
+}
+
+
+model Leave {
+  leaveId          String      @id @default(uuid())
+  date        DateTime
+  employeeId  String
+  reason      String
+  department  String
+  documentUrl String?
+  status      LeaveStatus @default(Pending)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  employee    Employee    @relation(fields: [employeeId], references: [userId])
+
+  @@index([employeeId])
 }
 
 enum UserRole {

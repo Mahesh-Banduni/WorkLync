@@ -12,8 +12,16 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 // Create a new user
-const createUser = async (userData) => {
+const createUser = async (adminId, userData) => {
   const email = userData.email;
+  
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN"},
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
@@ -28,9 +36,14 @@ const createUser = async (userData) => {
     data: {
       name: userData.name,
       email: email,
-      role: "Admin",
+      role: "ADMIN",
       password: password,
     },
+    select: {
+      userId: true,
+      name: true,
+      role: true
+    }
   });
 
   const response = JWTToken.generateToken(user);
@@ -38,12 +51,27 @@ const createUser = async (userData) => {
   return { response, user };
 };
 
-const getAllUsers = async () => {
+const getAllUsers = async (adminId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
+
   const users = await prisma.user.findMany();
   return users;
 };
 
-const getUserById = async (userId) => {
+const getUserById = async (adminId, userId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -53,7 +81,14 @@ const getUserById = async (userId) => {
   return user;
 };
 
-const updateUser = async (userId, updateData, files) => {
+const updateUser = async (adminId, userId, updateData, files) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
@@ -73,13 +108,26 @@ const updateUser = async (userId, updateData, files) => {
   return updatedUser;
 };
 
-const deleteUser = async (userId) => {
-  // Throws error if user does not exist
+const deleteUser = async (adminId, userId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
 
-    const user = await prisma.user.delete({
-      where: { id: userId },
-    });
-    return user;
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
+
+  let user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+ user = await prisma.user.delete({
+    where: { id: userId },
+  });
+  return user;
 };
 
 module.exports = {

@@ -1,52 +1,88 @@
 const { PrismaClient } = require('@prisma/client');
-const { uploadFile } = require('../utils/file.upload.util');
-const { ConflictError, NotFoundError } = require('../errors/errors');
-const fs = require('fs/promises');
+const { ConflictError, NotFoundError, BadRequestError } = require('../errors/errors');
+const { uploadFileToB2, getPrivateDownloadUrl } = require('../utils/file.upload.util.js');
 
 const prisma = new PrismaClient();
 
-// Create a new candidate profile with resume upload
-const createCandidate = async (candidateData, resumeFile) => {
-    console.log(resumeFile)
+const createCandidate = async (adminId, candidateData, resumeFile) => {
+  // Check admin role
+  const adminCheck = await prisma.user.findFirst({
+    where: { userId: adminId, role: 'ADMIN' },
+  });
+  if (!adminCheck) {
+    throw new BadRequestError('Unauthorized access');
+  }
+
   // Check if candidate exists
   const existing = await prisma.candidate.findUnique({ where: { email: candidateData.email } });
   if (existing) throw new ConflictError('Candidate with this email already exists');
 
-  // Upload resume to Cloudinary
-  const resumeUrl = await uploadFile(resumeFile);
+  // Upload resume to Backblaze B2
+  const {fileUrl} = await uploadFileToB2(resumeFile);
+
+  const password = hashValue.hash('Password@123');
 
   // Create candidate in DB
+  const user = await prisma.user.create({
+    data: {
+      name: candidateData.name,
+      email: candidateData.email,
+      password: password,
+      role: 'USER'
+    },
+  })
   const candidate = await prisma.candidate.create({
     data: {
-      name: candidateData.fullName,
-      email: candidateData.email,
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
       phoneNumber: candidateData.phoneNumber,
       position: candidateData.position,
       yearsOfExperience: parseFloat(candidateData.yearsOfExperience),
-      resumefileUrl: resumeUrl || "",
+      resumefileUrl: fileUrl || '',
     },
   });
+
   return candidate;
 };
 
 // Download candidate's resume (returns the Cloudinary URL)
-const getCandidateResumeUrl = async (candidateId) => {
-  console.log(candidateId)
-  const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
+const getCandidateResumeUrl = async (adminId, candidateId) => {
+  const adminCheck = await prisma.user.findFirst({
+      where: { userId: adminId, role: "ADMIN" },
+    });
+  
+    if (!adminCheck) {
+      throw new BadRequestError("Unauthorized access");
+    }
+  const candidate = await prisma.candidate.findUnique({ where: { candidateId } });
   if (!candidate) throw new NotFoundError('Candidate not found');
   if (!candidate.resumefileUrl) throw new NotFoundError('Resume not found');
-  return candidate.resumefileUrl;
+
+  // Extract file name from URL
+  let fileName = candidate.resumefileUrl.split('/').pop();
+  fileName=`documents/${fileName}`;
+
+  const signedUrl = await getPrivateDownloadUrl(fileName);
+
+  return signedUrl;
 };
 
 // Move selected candidate to Employee
-const moveCandidateToEmployee = async (candidateId) => {
+const moveCandidateToEmployee = async (adminId, candidateId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
   const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
   if (!candidate) throw new NotFoundError('Candidate not found');
   await prisma.candidate.update({
     where: { id: candidateId },
     data: { applicationStatus: 'Selected' },
   });
-  if (candidate.applicationStatus !== 'Selected') throw new ConflictError('Candidate not selected');
 
   // Create Employee
   const employee = await prisma.employee.create({
@@ -67,7 +103,14 @@ const moveCandidateToEmployee = async (candidateId) => {
 };
 
 // Filter/Search Candidates
-const searchCandidates = async (filters) => {
+const getAllCandidates = async (adminId, filters) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
   // filters: { name, email, position, applicationStatus }
   const candidates = await prisma.candidate.findMany({
     where: {
@@ -82,8 +125,14 @@ const searchCandidates = async (filters) => {
   return candidates;
 };
 
-const getCandidateById = async (candidateId) => {
-  console.log(candidateId)
+const getCandidateById = async (adminId, candidateId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
   const candidate = await prisma.candidate.findUnique({
     where: { id: candidateId },
   });
@@ -94,7 +143,14 @@ const getCandidateById = async (candidateId) => {
 };
 
 // Delete Candidate
-const deleteCandidate = async (candidateId) => {
+const deleteCandidate = async (adminId, candidateId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
     const candidate = await prisma.candidate.delete({ where: { id: candidateId } });
     if(!candidate) throw new NotFoundError("Candidate not found");
     return candidate;
@@ -104,7 +160,7 @@ module.exports = {
   createCandidate,
   getCandidateResumeUrl,
   moveCandidateToEmployee,
-  searchCandidates,
+  getAllCandidates,
   getCandidateById,
   deleteCandidate
 };

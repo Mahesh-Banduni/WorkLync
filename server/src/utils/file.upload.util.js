@@ -1,31 +1,44 @@
-const cloudinary = require('../configs/cloudinary.config.js');
+const fs = require('fs');
+const path = require('path');
+const { b2, authorizeB2 } = require('../configs/backblaze.config.js');
 
-const uploadFile = async (file, folder = process.env.CLOUDINARY_FOLDER_NAME || 'hrms') => {
-  if (!file || !file.buffer) {
-    console.error('File is empty or missing buffer:', file);
-    return null;
-  }
+const uploadFileToB2 = async (file) => {
+  await authorizeB2();
 
-  try {
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          resource_type: 'raw',
-          folder, // Use the folder param for organization
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(file.buffer);
-    });
+  const uniqueFileName = `${Date.now()}-${file.originalname}`;
+  const mimeType = file.mimetype;
 
-    return result.secure_url;
-  } catch (error) {
-    console.error('File upload failed:', error);
-    return null;
-  }
+  const uploadUrlResponse = await b2.getUploadUrl({
+    bucketId: process.env.B2_BUCKET_ID,
+  });
+
+  const uploadResponse = await b2.uploadFile({
+    uploadUrl: uploadUrlResponse.data.uploadUrl,
+    uploadAuthToken: uploadUrlResponse.data.authorizationToken,
+    fileName: `documents/${uniqueFileName}`,
+    data: file.buffer, // Comes from memoryStorage
+    contentType: mimeType,
+  });
+
+  return {
+    fileUrl: `https://f005.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}/documents/${uniqueFileName}`,
+  };
 };
 
-module.exports = { uploadFile };
+const getPrivateDownloadUrl = async (fileName, validDurationInSeconds = 604800) => {
+  console.log(fileName)
+  await authorizeB2();
+
+  const { data: { authorizationToken } } = await b2.getDownloadAuthorization({
+    bucketId: process.env.B2_BUCKET_ID,
+    fileNamePrefix: fileName,
+    validDurationInSeconds,
+  });
+
+  // Construct the signed URL
+  const downloadUrl = `https://f005.backblazeb2.com/file/${process.env.B2_BUCKET_NAME}/${fileName}?Authorization=${authorizationToken}`;
+
+  return downloadUrl;
+};
+
+module.exports = { uploadFileToB2, getPrivateDownloadUrl };

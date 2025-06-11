@@ -4,7 +4,14 @@ const { ConflictError, NotFoundError, BadRequestError } = require('../errors/err
 const prisma = new PrismaClient();
 
 // Create Employee
-const createEmployee = async (employeeData) => {
+const createEmployee = async (adminId, employeeData) => {
+  const adminCheck = await prisma.user.findFirst({
+      where: { id: adminId, role: "ADMIN" },
+    });
+  
+    if (!adminCheck) {
+      throw new BadRequestError("Unauthorized access");
+    }
   const existingEmployee = await prisma.employee.findUnique({ where: { email: employeeData.email } });
   if (existingEmployee) throw new ConflictError('Employee with this email already exists');
   const employee = await prisma.employee.create({ data: employeeData });
@@ -12,7 +19,14 @@ const createEmployee = async (employeeData) => {
 };
 
 // Edit Employee
-const updateEmployee = async (employeeId, updateData) => {
+const updateEmployee = async (adminId, employeeId, updateData) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
     const existingEmployee = await prisma.existingEmployee.findUnique({ where: { email: employeeData.email } });
     if (existingEmployee) throw new ConflictError('Employee with this email already exists');
 
@@ -32,14 +46,28 @@ const updateEmployee = async (employeeId, updateData) => {
 };
 
 // Delete Employee
-const deleteEmployee = async (employeeId) => {
+const deleteEmployee = async (adminId, employeeId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
     const employee = await prisma.employee.delete({ where: { id: employeeId } });
     if(!employee) throw new NotFoundError("Employee not found");
     return employee;
 };
 
 // Filter/Search Employees
-const searchEmployees = async (filters) => {
+const searchEmployees = async (adminId, filters) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
   // filters: { name, email, department, position, attendanceStatus }
   const employees = await prisma.employee.findMany({
     where: {
@@ -55,7 +83,14 @@ const searchEmployees = async (filters) => {
   return employees;
 };
 
-const getEmployeeById = async (employeeId) => {
+const getEmployeeById = async (adminId, employeeId) => {
+  const adminCheck = await prisma.user.findFirst({
+    where: { id: adminId, role: "ADMIN" },
+  });
+
+  if (!adminCheck) {
+    throw new BadRequestError("Unauthorized access");
+  }
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
   });

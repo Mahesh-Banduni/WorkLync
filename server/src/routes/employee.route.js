@@ -3,10 +3,10 @@ const router = express.Router();
 const employeeController = require("../controllers/employee.controller.js");
 const auth = require("../middlewares/auth.js");
 
-router.post("/", employeeController.createEmployee);
-router.get("/:id", employeeController.getEmployeeById);
-router.get("/all", employeeController.getAllEmployees);
-router.put("/:id", employeeController.updateEmployee);
-router.delete("/:id", employeeController.deleteEmployee);
+router.post("/", auth, employeeController.createEmployee);
+router.get("/:id", auth, employeeController.getEmployeeById);
+router.get("/all", auth, employeeController.getAllEmployees);
+router.put("/:id", auth, employeeController.updateEmployee);
+router.delete("/:id", auth, employeeController.deleteEmployee);
 
 module.exports = router;
