@@ -2,10 +2,12 @@
 import { useState, useEffect, useRef } from "react";
 import { BarChart, Sparkle, Search, Square, User, LogOut, Menu, MailPlus, Bell, UserCircle, ChevronDown} from "lucide-react";
 import Link from "next/link";
+import {useLogout} from "@/hooks/useAuth";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
+  const { handleLogout, loading } = useLogout();
 
   // Close sidebar on outside click (mobile only)
   useEffect(() => {
@@ -121,7 +123,7 @@ export default function Sidebar() {
             <p className="font-light text-gray-600 mb-3">Recruitment</p>
             <div className="ml-3">
               <Link 
-                href="/dashboard/candidates" 
+                href="/admin/dashboard/candidates" 
                 className="flex items-center gap-2 text-black hover:text-purple-800 py-2"
                 onClick={() => setIsOpen(false)} // Close sidebar on mobile when link clicked
               >
@@ -135,7 +137,7 @@ export default function Sidebar() {
             <p className="font-light text-gray-600 mb-3">Organization</p>
             <div className="ml-3 flex flex-col gap-3">
               <Link 
-                href="/dashboard/employees" 
+                href="/admin/dashboard/employees" 
                 className="flex items-center gap-2 text-black hover:text-purple-800 py-2"
                 onClick={() => setIsOpen(false)}
               >
@@ -143,7 +145,7 @@ export default function Sidebar() {
                 Employees
               </Link>
               <Link 
-                href="/dashboard/attendance" 
+                href="/admin/dashboard/attendance" 
                 className="flex items-center gap-2 text-black hover:text-purple-800 py-2"
                 onClick={() => setIsOpen(false)}
               >
@@ -151,7 +153,7 @@ export default function Sidebar() {
                 Attendance
               </Link>
               <Link 
-                href="/dashboard/leaves" 
+                href="/admin/dashboard/leaves" 
                 className="flex items-center gap-2 text-black hover:text-purple-800 py-2"
                 onClick={() => setIsOpen(false)}
               >
@@ -164,7 +166,7 @@ export default function Sidebar() {
           <div>
             <p className="font-light text-gray-600 mb-3">Others</p>
             <div className="ml-3">
-              <button className="flex items-center gap-2 text-black hover:text-purple-800 py-2">
+              <button className="flex items-center gap-2 text-black hover:text-purple-800 py-2 cursor-pointer" onClick={handleLogout} disabled={loading}>
                 <LogOut className="w-4 h-4" />
                 Logout
               </button>

@@ -1,8 +1,13 @@
+'use client';
+
+import React from 'react';
 import { Square } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import {useLogin} from "@/hooks/useAuth";
 
 export default function Login() {
+  const { formData, handleChange, handleSubmit, loading} = useLogin();
   return (
     <div className="w-full min-h-screen flex flex-col">
       {/* Header */}
@@ -36,26 +41,55 @@ export default function Login() {
 
         {/* Right Side */}
         <div className="w-full md:w-1/2 flex items-center justify-center">
-          <div className="flex flex-col w-full max-w-md gap-4">
+          <form className="flex flex-col w-full max-w-md gap-4" onSubmit={handleSubmit}>
             <h1 className="font-semibold text-xl text-center md:text-left">Welcome to Dashboard</h1>
 
-            {["Email Address", "Password"].map((label, idx) => (
-              <div className="flex flex-col gap-2" key={idx}>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
                 <span className="inline-flex items-center">
-                  <label className="font-thin text-sm text-gray-800">{label}</label>
+                  <label className="font-thin text-sm text-gray-800">Email Address</label>
                   <p className="text-red-700 text-sm ml-1">*</p>
                 </span>
                 <input
-                  type="text"
-                  placeholder={label}
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Email Address"
                   className="border-2 border-gray-200 rounded-md p-2.5"
+                  required
                 />
               </div>
-            ))}
+              <div className="flex flex-col gap-2">
+                <span className="inline-flex items-center">
+                  <label className="font-thin text-sm text-gray-800">Password</label>
+                  <p className="text-red-700 text-sm ml-1">*</p>
+                </span>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Password"
+                  className="border-2 border-gray-200 rounded-md p-2.5"
+                  required
+                />
+              </div>
 
-            <button className="bg-purple-900 text-white font-semibold rounded-full p-2.5 mt-2">
-              Login
+              </div>
+
+            <button 
+              type="submit"
+              className={` font-semibold rounded-full p-2.5 mt-2 ${
+                loading 
+                  ? 'bg-white text-purple-800 border-purple-800 border cursor-not-allowed' 
+                  : 'cursor-pointer text-white bg-purple-900 hover:bg-white hover:text-purple-800 hover:border-purple-800 hover:border transition-colors duration-300'
+              }`}
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
             </button>
+
 
             <span className="inline-flex gap-1 text-sm justify-center md:justify-start">
               <p className="font-light text-gray-400">Don't have an account?</p>
@@ -63,7 +97,7 @@ export default function Login() {
                 Register
               </Link>
             </span>
-          </div>
+          </form>
         </div>
       </div>
     </div>

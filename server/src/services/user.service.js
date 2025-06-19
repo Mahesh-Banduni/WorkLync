@@ -16,7 +16,7 @@ const createUser = async (adminId, userData) => {
   const email = userData.email;
   
   const adminCheck = await prisma.user.findFirst({
-    where: { id: adminId, role: "ADMIN"},
+    where: { userId: adminId, role: "ADMIN"},
   });
 
   if (!adminCheck) {
@@ -53,7 +53,7 @@ const createUser = async (adminId, userData) => {
 
 const getAllUsers = async (adminId) => {
   const adminCheck = await prisma.user.findFirst({
-    where: { id: adminId, role: "ADMIN" },
+    where: { userId: adminId, role: "ADMIN" },
   });
 
   if (!adminCheck) {
@@ -64,16 +64,15 @@ const getAllUsers = async (adminId) => {
   return users;
 };
 
-const getUserById = async (adminId, userId) => {
-  const adminCheck = await prisma.user.findFirst({
-    where: { id: adminId, role: "ADMIN" },
-  });
-
-  if (!adminCheck) {
-    throw new BadRequestError("Unauthorized access");
-  }
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+const getUserById = async (userId) => {
+  const user = await prisma.user.findFirst({
+    where: {userId},
+    select:{
+      userId: true,
+      name: true,
+      email: true,
+      role: true
+    }
   });
   if (!user) {
     throw new NotFoundError("User not found");
@@ -83,14 +82,14 @@ const getUserById = async (adminId, userId) => {
 
 const updateUser = async (adminId, userId, updateData, files) => {
   const adminCheck = await prisma.user.findFirst({
-    where: { id: adminId, role: "ADMIN" },
+    where: { userId: adminId, role: "ADMIN" },
   });
 
   if (!adminCheck) {
     throw new BadRequestError("Unauthorized access");
   }
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { userId: userId },
   });
   if (!user) {
     throw new NotFoundError("User not found");
@@ -101,7 +100,7 @@ const updateUser = async (adminId, userId, updateData, files) => {
   if (updateData.password) updatedFields.password = hashValue.hash(updateData.password);
 
   const updatedUser = await prisma.user.update({
-    where: { id: userId },
+    where: { userId: userId },
     data: updatedFields,
   });
 
@@ -110,7 +109,7 @@ const updateUser = async (adminId, userId, updateData, files) => {
 
 const deleteUser = async (adminId, userId) => {
   const adminCheck = await prisma.user.findFirst({
-    where: { id: adminId, role: "ADMIN" },
+    where: { userId: adminId, role: "ADMIN" },
   });
 
   if (!adminCheck) {
@@ -118,14 +117,14 @@ const deleteUser = async (adminId, userId) => {
   }
 
   let user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { userId: userId },
   });
   if (!user) {
     throw new NotFoundError("User not found");
   }
 
  user = await prisma.user.delete({
-    where: { id: userId },
+    where: { userId: userId },
   });
   return user;
 };

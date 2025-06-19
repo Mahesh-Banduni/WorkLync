@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Upload, FileText, Calendar as CalendarIcon } from 'lucide-react';
+import { X, Calendar as CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ const EditEmployeeForm = ({ isOpen, onClose, onSubmit }) => {
     department: '',
     email: '',
     position: '',
-    doj: null, // Changed to null for date object
+    doj: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -39,7 +39,6 @@ const EditEmployeeForm = ({ isOpen, onClose, onSubmit }) => {
       ...prev,
       doj: date
     }));
-    // Clear date error when a date is selected
     if (errors.doj) {
       setErrors(prev => ({
         ...prev,
@@ -64,7 +63,6 @@ const EditEmployeeForm = ({ isOpen, onClose, onSubmit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Format the date before submitting if needed
       const submitData = {
         ...formData,
         doj: formData.doj ? format(formData.doj, 'yyyy-MM-dd') : null
@@ -181,16 +179,21 @@ const EditEmployeeForm = ({ isOpen, onClose, onSubmit }) => {
               <label className="block text-sm font-medium text-gray-700">
                 Position*
               </label>
-              <input
-                type="text"
+              <select
                 name="position"
                 value={formData.position}
                 onChange={handleChange}
                 className={`w-full p-3 border rounded-lg bg-white bg-opacity-80 backdrop-blur-sm ${
                   errors.position ? 'border-red-500' : 'border-gray-300'
                 } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base`}
-                placeholder="Software Engineer"
-              />
+              >
+                <option value="">Select position</option>
+                {positions.map((position) => (
+                  <option key={position} value={position}>
+                    {position}
+                  </option>
+                ))}
+              </select>
               {errors.position && (
                 <p className="text-red-500 text-xs mt-1">{errors.position}</p>
               )}
@@ -214,7 +217,7 @@ const EditEmployeeForm = ({ isOpen, onClose, onSubmit }) => {
                     {formData.doj ? format(formData.doj, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 z-[99999]" align="start">
                   <Calendar
                     mode="single"
                     selected={formData.doj}
@@ -242,6 +245,7 @@ const EditEmployeeForm = ({ isOpen, onClose, onSubmit }) => {
               Cancel
             </button>
             <button
+              type="submit"
               onClick={handleSubmit}
               className="px-6 py-2.5 bg-purple-800 text-white rounded-lg hover:bg-purple-900 flex items-center justify-center transition-all text-sm sm:text-base font-medium order-1 sm:order-2"
             >

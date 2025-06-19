@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import ToastManager from '@/components/ui/toastWrapper';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,7 +19,7 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "HRMS",
+  title: "WorkLync",
 };
 
 export default function RootLayout({ children }) {
@@ -27,8 +28,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
       >
+        <ToastManager />
         {children}
       </body>
     </html>
   );
 }
+

@@ -8,6 +8,7 @@ const authRoutes = require("./routes/auth.route.js");
 const userRoutes = require("./routes/user.route.js");
 const employeeRoutes = require("./routes/employee.route.js");
 const candidateRoutes = require("./routes/candidate.route.js");
+const notificationRoutes = require("./routes/notification.route.js");
 const bodyParser = require("body-parser");
 
 require("dotenv").config();
@@ -19,6 +20,7 @@ server.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 // Middleware to generate a CSP nonce
 server.use((req, res, next) => {
@@ -70,6 +72,7 @@ server.use("/api/user", userRoutes);
 server.use("/api/auth", authRoutes);
 server.use("/api/employee", employeeRoutes);
 server.use("/api/candidate", candidateRoutes);
+server.use("/api/notification", notificationRoutes);
 
 // Error handling middleware
 server.use(errorHandler);

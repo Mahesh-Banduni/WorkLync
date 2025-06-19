@@ -4,8 +4,13 @@ import AddCandidateForm from "@/components/candidates/AddCandidateForm";
 import CandidateTable from "@/components/candidates/Table";
 import { ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
+import { successToast, errorToast } from "@/components/ui/toast";
+import {createCandidate, fetchCandidates} from "@/hooks/admin/useCandidate";
+import { useSelector } from "react-redux";
 
 export default function Candidates() {
+  const { candidatesList, error, loading } = useSelector((state) => state.candidates);
+
   const [statusOpen, setStatusOpen] = useState(false);
   const [positionOpen, setPositionOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("Status");
@@ -15,9 +20,14 @@ export default function Candidates() {
   const positionOptions = ["Designer", "Developer", "Human Resource"];
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const handleSubmit = (formData) => {
-    console.log('New candidate:', formData);
-    // Add your API call or state update here
+  const handleSubmit = async(formData) => {
+    const response = await createCandidate(formData);
+    if(response?.status === 200){
+      successToast('Candidate created successfully');
+    }
+    else{
+      errorToast('Failed to create candidate');
+    }
   };
 
   return (
@@ -82,7 +92,7 @@ export default function Candidates() {
         </div>
         </div>
 
-        <div div className="inline-flex gap-2">
+        <div className="inline-flex gap-2">
         <div className="flex items-center h-9 px-4 mt-0.5">
           <div className="relative w-full ">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -108,7 +118,11 @@ export default function Candidates() {
 
       {/* Candidate List */}
       <div className="bg-white rounded-lg border shadow-xl shadow-gray-200">
-        <CandidateTable />
+        <CandidateTable 
+          candidates={candidatesList}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
+        />
       </div>
 
       <AddCandidateForm 

@@ -40,11 +40,11 @@ const getAllUsers = async (req, res, next) => {
 // Get user by ID
 const getUserById = async (req, res, next) => {
   try {
-    const adminId= req.user.id;
-    const userId=req.params.id;
-    const user = await userService.getUserById(adminId, userId);
+    const userId=req.user.id;
+    const user = await userService.getUserById(userId);
     res.status(200).json({
-      data: user,
+      user: user, 
+      message: "User details retrieved successfully",
     });
   } catch (error) {
     next(error);

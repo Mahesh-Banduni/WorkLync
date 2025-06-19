@@ -68,8 +68,8 @@ const getCandidateResumeUrl = async (adminId, candidateId) => {
   return signedUrl;
 };
 
-// Move selected candidate to Employee
-const moveCandidateToEmployee = async (adminId, candidateId) => {
+// Change candidate status
+const changeCandidateStatus = async (adminId, candidateId, status) => {
   const adminCheck = await prisma.user.findFirst({
     where: { id: adminId, role: "ADMIN" },
   });
@@ -79,27 +79,12 @@ const moveCandidateToEmployee = async (adminId, candidateId) => {
   }
   const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
   if (!candidate) throw new NotFoundError('Candidate not found');
-  await prisma.candidate.update({
+  const updatedCandidate =await prisma.candidate.update({
     where: { id: candidateId },
-    data: { applicationStatus: 'Selected' },
+    data: { applicationStatus: status },
   });
 
-  // Create Employee
-  const employee = await prisma.employee.create({
-    data: {
-      name: candidate.name,
-      email: candidate.email,
-      phoneNumber: candidate.phoneNumber,
-      position: candidate.position,
-      department: "",
-      dateOfJoining: new Date(),
-      attendanceStatus: "Present",
-    },
-  });
-
-  await prisma.candidate.delete({ where: { id: candidateId } });
-
-  return employee;
+  return updatedCandidate;
 };
 
 // Filter/Search Candidates
@@ -159,7 +144,7 @@ const deleteCandidate = async (adminId, candidateId) => {
 module.exports = {
   createCandidate,
   getCandidateResumeUrl,
-  moveCandidateToEmployee,
+  changeCandidateStatus,
   getAllCandidates,
   getCandidateById,
   deleteCandidate

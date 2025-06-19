@@ -5,6 +5,7 @@ import { useState } from "react";
 import EmployeesTable from "@/components/employees/EmployeesTable";
 
 export default function Employees() {
+
   const [positionOpen, setPositionOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState("Position");
   const positionOptions = ["Designer", "Developer", "Human Resource"];

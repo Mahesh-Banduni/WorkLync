@@ -2,14 +2,13 @@
 
 import { ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
-import AttendanceTable from "@/components/attendance/AttendanceTable";
+import LeavesTable from "@/components/leaves/LeavesTable";
 
-export default function Attendance() {
+export default function Leaves() {
   const [statusOpen, setStatusOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("Status");
-
-  const statusOptions = ["Present", "Absent", "Medical Leave", "Work from Home"];
-
+  const statusOptions = ["New", "Scheduled", "Ongoing", "Selected", "Rejected"];
+  
   return (
     <div className="max-w-screen-xl mx-auto">
       
@@ -43,6 +42,7 @@ export default function Attendance() {
           )}
         </div>
 
+        <div className="inline-flex gap-2">
         <div className="flex items-center h-9 px-4 mt-0.5">
           <div className="relative w-full ">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -56,11 +56,17 @@ export default function Attendance() {
           </div>
         </div>
 
+        <button className="text-md bg-purple-900 text-white rounded-full px-5">
+          Add Leave
+        </button>
+
+        </div>
+
       </div>
 
       {/* Candidate List */}
       <div className="bg-white rounded-lg border">
-              <AttendanceTable></AttendanceTable>
+              <LeavesTable />
             </div>
     </div>
   );

@@ -66,7 +66,7 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
         </div>
 
         {/* Form Content */}
-        <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-6 space-y-4 sm:space-y-6">
           {/* Row 1: Full Name & Phone Number */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -249,14 +249,14 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
               Cancel
             </button>
             <button
-              onClick={handleSubmit}
+              type='submit'
               className="px-6 py-2.5 bg-purple-800 text-white rounded-lg hover:bg-purple-900 flex items-center justify-center transition-all text-sm sm:text-base font-medium order-1 sm:order-2"
             >
               <Upload className="w-4 h-4 mr-2" />
               Save Candidate
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

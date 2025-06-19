@@ -57,15 +57,15 @@ const downloadResume = async (req, res, next) => {
   }
 };
 
-// Move selected candidate to employee
-const moveToEmployee = async (req, res, next) => {
+// Change candidate status
+const changeCandidateStatus = async (req, res, next) => {
   try {
     const adminId= req.user.id;
     const userId= req.params.id;
-    const employee = await candidateService.moveCandidateToEmployee(adminId, userId);
+    const candidate = await candidateService.changeCandidateStatus(adminId, userId, req.body.status);
     res.status(200).json({
-      message: "Candidate moved to employee successfully",
-      employee,
+      message: "Candidate status changed successfully",
+      candidate,
     });
   } catch (error) {
     next(error);
@@ -89,6 +89,6 @@ module.exports = {
   getAllCandidates,
   getCandidateById,
   downloadResume,
-  moveToEmployee,
+  changeCandidateStatus,
   deleteCandidate
 };

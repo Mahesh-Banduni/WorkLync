@@ -29,7 +29,7 @@ const authUser = async (email, password) => {
   }
 
   const response=JWTToken.generateToken(user);
-  return { response };
+  return { response, user: {name: user.name, email: user.email, role: user.role}};
 };
 
 module.exports = {

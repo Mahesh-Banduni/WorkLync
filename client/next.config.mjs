@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Required for static export (SSG)
+  //output: 'export', // Required for static export (SSG)
   eslint: {
     ignoreDuringBuilds: true, // Allow builds even if ESLint fails
   },

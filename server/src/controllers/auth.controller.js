@@ -11,7 +11,8 @@ const authUser = async (req, res, next) => {
     // Send back the user data and the token
     res.status(200).json({
       message: "User logged-in successfully",
-      token: { response },
+      token: `${response}`,
+      user
     });
   } catch (error) {
     next(error);

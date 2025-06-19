@@ -3,7 +3,7 @@
 import { Download, Trash2, MoreVertical, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
-export default function CandidateTable() {
+export default function CandidateTable({candidates, onUpdate, onDelete}) {
   const [candidates, setCandidates] = useState([
     {
       id: 1,
@@ -130,7 +130,7 @@ export default function CandidateTable() {
                 <div className="relative">
                   <button
                     onClick={() => toggleStatusDropdown(candidate.id)}
-                    className={`flex items-center justify-between px-3 py-1 h-8 rounded-full border-1 border-purple-900 ${getStatusColor(candidate.status)}`}
+                    className={`flex items-center justify-between px-3 py-2 h-8 rounded-full border-1 border-purple-900 ${getStatusColor(candidate.status)}`}
                   >
                     <span className="text-sm font-semibold">{candidate.status}</span>
                     <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${statusDropdownOpenId === candidate.id ? 'transform rotate-180' : ''}`} />

@@ -18,6 +18,8 @@ model User {
   updatedAt DateTime  @updatedAt
   employee  Employee?
   candidate Candidate?
+
+  webPushSubscriptions WebPushSubscription[]
 }
 
 model Employee {
@@ -102,4 +104,15 @@ enum PositionType {
   Junior
   Senior
   Team_Lead
+}
+
+model WebPushSubscription {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [userId])
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  @@index([userId])
 }
