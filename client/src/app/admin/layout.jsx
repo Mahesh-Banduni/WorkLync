@@ -18,10 +18,11 @@ export default function DashboardLayout({ children }) {
         if (role === 'ADMIN') {
           setIsChecking(false);
         } else {
-          router.push('/');
+          //router.push('/');
         }
       } catch (error) {
-        router.push('/');
+        //router.push('/');
+        router.push("/admin/dashboard/candidates")
       }
     };
 

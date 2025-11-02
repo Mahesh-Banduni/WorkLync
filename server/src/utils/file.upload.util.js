@@ -26,7 +26,6 @@ const uploadFileToB2 = async (file) => {
 };
 
 const getPrivateDownloadUrl = async (fileName, validDurationInSeconds = 604800) => {
-  console.log(fileName)
   await authorizeB2();
 
   const { data: { authorizationToken } } = await b2.getDownloadAuthorization({

@@ -70,8 +70,8 @@ server.use(bodyParser.json())
 // Route setup
 server.use("/api/user", userRoutes);
 server.use("/api/auth", authRoutes);
-server.use("/api/employee", employeeRoutes);
-server.use("/api/candidate", candidateRoutes);
+server.use("/api/employees", employeeRoutes);
+server.use("/api/candidates", candidateRoutes);
 server.use("/api/notification", notificationRoutes);
 
 // Error handling middleware

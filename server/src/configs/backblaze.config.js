@@ -9,7 +9,7 @@ const b2 = new B2({
 const authorizeB2 = async () => {
   try {
     await b2.authorize();
-    console.log('Backblaze B2 authorized successfully.');
+    //console.log('Backblaze B2 authorized successfully.');
   } catch (err) {
     console.error('Backblaze B2 authorization failed:', err.message);
   }

@@ -1,260 +1,173 @@
 'use client';
 
 import { Download, Trash2, MoreVertical, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import React from 'react';
 
-export default function CandidateTable({candidates, onUpdate, onDelete}) {
-  const [candidates, setCandidates] = useState([
-    {
-      id: 1,
-      name: 'Jacob William',
-      email: 'jacob.william@example.com',
-      phone: '(252) 555-0111',
-      position: 'Senior Developer',
-      status: 'New',
-      experience: '1+',
-    },
-    {
-      id: 2,
-      name: 'Guy Hawkins',
-      email: 'kenz1.lawson@example.com',
-      phone: '(907) 555-0101',
-      position: 'Human Resource Lead',
-      status: 'New',
-      experience: '2',
-    },
-    {
-      id: 3,
-      name: 'Arlene McCoy',
-      email: 'arlene.mccoy@example.com',
-      phone: '(302) 555-0107',
-      position: 'Full Time Designer',
-      status: 'Selected',
-      experience: '3',
-    },
-    {
-      id: 4,
-      name: 'Leslie Alexander',
-      email: 'willie.jennings@example.com',
-      phone: '(207) 555-0119',
-      position: 'Full Time Developer',
-      status: 'Rejected',
-      experience: '0',
-    },
-    {
-      id: 5,
-      name: 'Arlene McCoy',
-      email: 'arlene.mccoy@example.com',
-      phone: '(302) 555-0107',
-      position: 'Full Time Designer',
-      status: 'Selected',
-      experience: '3',
-    },
-    {
-      id: 6,
-      name: 'Leslie Alexander',
-      email: 'willie.jennings@example.com',
-      phone: '(207) 555-0119',
-      position: 'Full Time Developer',
-      status: 'Rejected',
-      experience: '0',
-    },
-  ]);
-
+export default function CandidateTable({ candidates, loading, error, onUpdate, onDelete, onDownload }) {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [statusDropdownOpenId, setStatusDropdownOpenId] = useState(null);
   const statusOptions = ["New", "Scheduled", "Ongoing", "Selected", "Rejected"];
 
-  const handleDelete = (id) => {
-    setCandidates(candidates.filter(candidate => candidate.id !== id));
-  };
+  const dropdownRef = useRef(null);
 
-  const handleDownload = (id) => {
-    console.log(`Downloading resume for candidate ${id}`);
-    // Add your download logic here
-  };
+  // Handle clicks outside dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdownId(null);
+        setStatusDropdownOpenId(null);
+      }
+    };
 
-  const toggleActionDropdown = (id) => {
-    setOpenDropdownId(openDropdownId === id ? null : id);
-    setStatusDropdownOpenId(null); // Close status dropdown if open
-  };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const toggleStatusDropdown = (id) => {
-    setStatusDropdownOpenId(statusDropdownOpenId === id ? null : id);
-    setOpenDropdownId(null); // Close action dropdown if open
-  };
-
-  const updateStatus = (id, newStatus) => {
-    setCandidates(candidates.map(candidate => 
-      candidate.id === id ? { ...candidate, status: newStatus } : candidate
-    ));
+  // Toggle functions with proper event handling
+  const toggleActionDropdown = (candidateId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenDropdownId(prev => prev === candidateId ? null : candidateId);
     setStatusDropdownOpenId(null);
   };
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'New': return 'bg-white text-blue-800';
-      case 'Selected': return 'bg-white text-purple-900';
-      case 'Rejected': return 'bg-white text-red-800';
-      case 'Scheduled': return 'bg-white text-yellow-800';
-      case 'Ongoing': return 'bg-white text-green-700';
-      default: return 'bg-white text-gray-800';
-    }
+  const toggleStatusDropdown = (candidateId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setStatusDropdownOpenId(prev => prev === candidateId ? null : candidateId);
+    setOpenDropdownId(null);
   };
 
+  const handleStatusChange = (candidateId, newStatus, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log(`Updating ${candidateId} to ${newStatus}`);
+    onUpdate(candidateId, newStatus);
+    setStatusDropdownOpenId(null);
+  };
+
+  const handleResumeDownload = (candidateId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDownload(candidateId);
+    setOpenDropdownId(null);
+  };
+
+  const handleCandidateDelete = (candidateId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDelete(candidateId);
+    setOpenDropdownId(null);
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      'New': 'bg-white text-blue-800',
+      'Selected': 'bg-white text-purple-900',
+      'Rejected': 'bg-white text-red-800',
+      'Scheduled': 'bg-white text-yellow-800',
+      'Ongoing': 'bg-white text-green-700'
+    };
+    return colors[status] || 'bg-white text-gray-800';
+  };
+
+  if (loading) return <LoadingState />;
+  if (error) return <ErrorState error={error} />;
+
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-      {/* Desktop Table (visible on md screens and up) */}
+    <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm" ref={dropdownRef}>
+      {/* Desktop Table */}
       <table className="hidden md:table w-full divide-y divide-gray-200">
         <thead className="bg-purple-900 h-13">
           <tr>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Sr no.</th>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Candidate Name</th>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Email Address</th>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Phone Number</th>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Position</th>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Experience</th>
-            <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Action</th>
+            <TableHeader>Sr no.</TableHeader>
+            <TableHeader>Candidate Name</TableHeader>
+            <TableHeader>Email Address</TableHeader>
+            <TableHeader>Phone Number</TableHeader>
+            <TableHeader>Position</TableHeader>
+            <TableHeader>Status</TableHeader>
+            <TableHeader>Experience</TableHeader>
+            <TableHeader>Action</TableHeader>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {candidates.map((candidate, index) => (
-            <tr key={candidate.id}>
-              <td className="px-3.5 py-4 whitespace-nowrap text-sm text-gray-500">{index + 1}</td>
-              <td className="px-3.5 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{candidate.name}</td>
-              <td className="px-3.5 py-4 whitespace-nowrap text-sm text-gray-500">{candidate.email}</td>
-              <td className="px-3.5 py-4 whitespace-nowrap text-sm text-gray-500">{candidate.phone}</td>
-              <td className="px-3.5 py-4 whitespace-nowrap text-sm text-gray-500">{candidate.position}</td>
+            <tr key={candidate.candidateId}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell className="font-medium">{candidate.name}</TableCell>
+              <TableCell>{candidate.email}</TableCell>
+              <TableCell>{candidate.phoneNumber}</TableCell>
+              <TableCell>{candidate.position}</TableCell>
               <td className="px-3.5 py-4 whitespace-nowrap">
-                <div className="relative">
-                  <button
-                    onClick={() => toggleStatusDropdown(candidate.id)}
-                    className={`flex items-center justify-between px-3 py-2 h-8 rounded-full border-1 border-purple-900 ${getStatusColor(candidate.status)}`}
-                  >
-                    <span className="text-sm font-semibold">{candidate.status}</span>
-                    <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${statusDropdownOpenId === candidate.id ? 'transform rotate-180' : ''}`} />
-                  </button>
-                  {statusDropdownOpenId === candidate.id && (
-                    <div className="absolute z-20 mt-1 left-0 bg-white border rounded-lg shadow-lg w-32">
-                      {statusOptions.map((option) => (
-                        <div
-                          key={option}
-                          onClick={() => updateStatus(candidate.id, option)}
-                          className="px-3 py-2 text-xs hover:bg-gray-100 cursor-pointer"
-                        >
-                          {option}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <StatusDropdown
+                  candidate={candidate}
+                  statusDropdownOpenId={statusDropdownOpenId}
+                  toggleStatusDropdown={toggleStatusDropdown}
+                  handleStatusChange={handleStatusChange}
+                  getStatusColor={getStatusColor}
+                  statusOptions={statusOptions}
+                />
               </td>
-              <td className="px-3.5 py-4 whitespace-nowrap text-sm text-gray-500">
-                {candidate.experience}
-              </td>
+              <TableCell>{candidate.yearsOfExperience}</TableCell>
               <td className="px-3.5 py-4 whitespace-nowrap text-sm text-gray-500 relative">
-                <button 
-                  onClick={() => toggleActionDropdown(candidate.id)}
-                  className="text-gray-600 hover:text-gray-900 p-1"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-                {openDropdownId === candidate.id && (
-                  <div className="absolute z-20 right-0 mt-1 bg-white border rounded-lg shadow-lg w-40">
-                    <button
-                      onClick={() => handleDownload(candidate.id)}
-                      className="flex items-center w-full px-3 py-2 text-left text-xs hover:bg-gray-100"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Resume
-                    </button>
-                    <button
-                      onClick={() => handleDelete(candidate.id)}
-                      className="flex items-center w-full px-3 py-2 text-left text-xs hover:bg-gray-100 text-red-600"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Candidate
-                    </button>
-                  </div>
-                )}
+                <ActionDropdown
+                  candidate={candidate}
+                  openDropdownId={openDropdownId}
+                  toggleActionDropdown={toggleActionDropdown}
+                  handleResumeDownload={handleResumeDownload}
+                  handleCandidateDelete={handleCandidateDelete}
+                />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Mobile Cards (visible on sm screens and down) */}
+      {/* Mobile View */}
       <div className="md:hidden space-y-4 p-4">
-        {candidates.map((candidate, index) => (
-          <div key={candidate.id} className="bg-white p-4 rounded-lg shadow border border-gray-200">
-            <div className="flex justify-between items-start">
+        {candidates.map((candidate) => (
+          <div key={candidate.candidateId} className="bg-white p-4 rounded-lg shadow border border-gray-200">
+            <div className="flex flex-wrap justify-between items-start gap-1.5">
               <div>
                 <p className="text-sm font-medium text-gray-900">{candidate.name}</p>
-                <p className="text-xs text-gray-500">{candidate.email}</p>
+                <p className="text-xs text-gray-500 break-all">{candidate.email}</p>
               </div>
               <div className="relative">
-                <button
-                  onClick={() => toggleStatusDropdown(candidate.id)}
-                  className={`flex items-center justify-between px-3 py-1 rounded-full ${getStatusColor(candidate.status)}`}
-                >
-                  <span className="text-xs font-semibold">{candidate.status}</span>
-                  <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${statusDropdownOpenId === candidate.id ? 'transform rotate-180' : ''}`} />
-                </button>
-                {statusDropdownOpenId === candidate.id && (
-                  <div className="absolute z-20 mt-1 right-0 bg-white border rounded-lg shadow-lg w-32">
-                    {statusOptions.map((option) => (
-                      <div
-                        key={option}
-                        onClick={() => updateStatus(candidate.id, option)}
-                        className="px-3 py-2 text-xs hover:bg-gray-100 cursor-pointer"
-                      >
-                        {option}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <StatusDropdown
+                  candidate={candidate}
+                  statusDropdownOpenId={statusDropdownOpenId}
+                  toggleStatusDropdown={toggleStatusDropdown}
+                  handleStatusChange={handleStatusChange}
+                  getStatusColor={getStatusColor}
+                  statusOptions={statusOptions}
+                />
               </div>
             </div>
             
-            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <p className="text-gray-500">Phone</p>
-                <p>{candidate.phone}</p>
+            <div className="mt-3 flex-wrap flex gap-5 text-sm items-center justify-between">
+              <div className='flex-wrap flex gap-5'>
+                <div>
+                  <p className="text-gray-500">Phone</p>
+                  <p>{candidate.phoneNumber}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Position</p>
+                  <p>{candidate.position}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Experience</p>
+                  <p>{candidate.yearsOfExperience}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-gray-500">Position</p>
-                <p>{candidate.position}</p>
-              </div>
-              <div>
-                <p className="text-gray-500">Experience</p>
-                <p>{candidate.experience}</p>
-              </div>
-              <div className="flex items-end justify-end relative">
-                <button 
-                  onClick={() => toggleActionDropdown(candidate.id)}
-                  className="text-gray-600 hover:text-gray-900 p-1"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-                {openDropdownId === candidate.id && (
-                  <div className="absolute z-20 top-6 right-0 bg-white border rounded-lg shadow-lg w-40">
-                    <button
-                      onClick={() => handleDownload(candidate.id)}
-                      className="flex items-center w-full px-3 py-2 text-left text-xs hover:bg-gray-100"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Resume
-                    </button>
-                    <button
-                      onClick={() => handleDelete(candidate.id)}
-                      className="flex items-center w-full px-3 py-2 text-left text-xs hover:bg-gray-100 text-red-600"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Candidate
-                    </button>
-                  </div>
-                )}
+              <div className="flex items-end justify-between relative">
+                <ActionDropdown
+                  candidate={candidate}
+                  openDropdownId={openDropdownId}
+                  toggleActionDropdown={toggleActionDropdown}
+                  handleResumeDownload={handleResumeDownload}
+                  handleCandidateDelete={handleCandidateDelete}
+                />
               </div>
             </div>
           </div>
@@ -263,3 +176,102 @@ export default function CandidateTable({candidates, onUpdate, onDelete}) {
     </div>
   );
 }
+
+// Component Parts
+const LoadingState = () => (
+  <div className="flex flex-col items-center justify-center py-20 space-y-3">
+    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-900"></div>
+    <p className="text-sm text-gray-600">Loading candidates...</p>
+  </div>
+);
+
+const ErrorState = ({ error }) => (
+  <div className="text-center py-10 text-red-600 font-medium">
+    {error}
+  </div>
+);
+
+const TableHeader = ({ children }) => (
+  <th className="px-3.5 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+    {children}
+  </th>
+);
+
+const TableCell = ({ children, className = '' }) => (
+  <td className={`px-3.5 py-4 whitespace-nowrap text-sm text-gray-500 ${className}`}>
+    {children}
+  </td>
+);
+
+const StatusDropdown = ({
+  candidate,
+  statusDropdownOpenId,
+  toggleStatusDropdown,
+  handleStatusChange,
+  getStatusColor,
+  statusOptions
+}) => (
+  <div className="relative">
+    <button
+      onClick={(e) => toggleStatusDropdown(candidate.candidateId, e)}
+      className={`flex items-center justify-between px-3 py-2 h-8 rounded-full border-1 border-purple-900 ${getStatusColor(candidate.applicationStatus)}`}
+    >
+      <span className="text-sm font-semibold">{candidate.applicationStatus}</span>
+      <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${statusDropdownOpenId === candidate.candidateId ? 'rotate-180' : ''}`} />
+    </button>
+    {statusDropdownOpenId === candidate.candidateId && (
+      <div 
+        className="absolute z-20 mt-1 left-0 bg-white border rounded-lg shadow-lg w-32"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {statusOptions.map(option => (
+          <div
+            key={option}
+            onClick={(e) => handleStatusChange(candidate.candidateId, option, e)}
+            className="px-3 py-2 text-xs hover:bg-gray-100 cursor-pointer"
+          >
+            {option}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
+const ActionDropdown = ({ 
+  candidate, 
+  openDropdownId, 
+  toggleActionDropdown, 
+  handleResumeDownload, 
+  handleCandidateDelete 
+}) => (
+  <>
+    <button 
+      onClick={(e) => toggleActionDropdown(candidate.candidateId, e)}
+      className="text-gray-600 hover:text-gray-900 p-1"
+    >
+      <MoreVertical className="w-4 h-4" />
+    </button>
+    {openDropdownId === candidate.candidateId && (
+      <div 
+        className="absolute z-20 right-0 mt-1 bg-white border rounded-lg shadow-lg w-40"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={(e) => handleResumeDownload(candidate.candidateId, e)}
+          className="flex items-center w-full px-3 py-2 text-left text-xs hover:bg-gray-100"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Download Resume
+        </button>
+        <button
+          onClick={(e) => handleCandidateDelete(candidate.candidateId, e)}
+          className="flex items-center w-full px-3 py-2 text-left text-xs hover:bg-gray-100 text-red-600"
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Delete Candidate
+        </button>
+      </div>
+    )}
+  </>
+);

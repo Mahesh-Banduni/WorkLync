@@ -6,8 +6,8 @@ const {uploadDocument} = require("../middlewares/multer.js");
 
 router.post("/", auth, uploadDocument.single('resume'), candidateController.createCandidate);
 router.get("/", auth, candidateController.getAllCandidates);
-router.post("/change-status/:id", auth, candidateController.changeCandidateStatus);
-router.get("/download-resume/:id",auth, candidateController.downloadResume);
+router.put("/:id/change-status", auth, candidateController.changeCandidateStatus);
+router.get("/:id/download-resume",auth, candidateController.downloadResume);
 router.get("/:id", auth, candidateController.getCandidateById);
 router.delete("/:id", auth, candidateController.deleteCandidate);
 

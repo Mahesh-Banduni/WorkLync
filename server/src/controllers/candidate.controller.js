@@ -4,7 +4,8 @@ const candidateService = require("../services/candidate.service.js");
 const createCandidate = async (req, res, next) => {
   try {
     const adminId= req.user.id;
-    const candidate = await candidateService.createCandidate(adminId, req.body, req.file);
+    const candidatesData= req.body;
+    const candidate = await candidateService.createCandidate(adminId,candidatesData, req.file);
     res.status(201).json({
       message: "Candidate profile created successfully",
       candidate,

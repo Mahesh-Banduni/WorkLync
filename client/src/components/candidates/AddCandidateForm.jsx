@@ -1,15 +1,21 @@
 'use client';
 
 import { X, Upload, FileText } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
-  const positions = ['Designer Intern', 'Junior Developer', 'HR Associate', 'Marketing Assistant', 'Sales Representative'];
+  const positions = {
+  Intern: 'Intern',
+  Full_Time: 'Full Time',
+  Junior: 'Junior',
+  Senior: 'Senior',
+  Team_Lead: 'Team Lead'
+};
   
   const [formData, setFormData] = useState({
     fullName: '',
     phoneNumber: '',
-    experience: '',
+    yearsOfExperience: '',
     email: '',
     position: '',
     resume: null,
@@ -17,6 +23,19 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
   });
 
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const handleMouseDown = (e) => {
+      if (!e.target.closest('.modal-content')) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, [onClose]);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -28,10 +47,10 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.fullName.trim()) newErrors.fullName = 'Full Name is required';
-    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone Number is required';
-    if (!formData.experience.trim()) newErrors.experience = 'Experience is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!formData.fullName?.trim()) newErrors.fullName = 'Full Name is required';
+    if (!formData.phoneNumber?.trim()) newErrors.phoneNumber = 'Phone Number is required';
+    if (!formData.yearsOfExperience?.trim()) newErrors.yearsOfExperience = 'Experience is required';
+    if (!formData.email?.trim()) newErrors.email = 'Email is required';
     if (!formData.position) newErrors.position = 'Position is required';
     if (!formData.resume) newErrors.resume = 'Resume is required';
     if (!formData.declaration) newErrors.declaration = 'Declaration must be accepted';
@@ -44,6 +63,15 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
     e.preventDefault();
     if (validateForm()) {
       onSubmit(formData);
+      setFormData({
+        fullName: '',
+        phoneNumber: '',
+        yearsOfExperience: '',
+        email: '',
+        position: '',
+        resume: null,
+        declaration: false,
+      });
       onClose();
     }
   };
@@ -52,7 +80,7 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-opacity-40 flex items-center justify-center p-2 sm:p-4 bg-[#00000082] backdrop-blur-[5px] z-[9999]">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="modal-content bg-white rounded-lg w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header */}
         <div className="flex justify-between items-center border-b border-gray-200 p-3 sm:p-4 bg-purple-900">
           <h2 className="text-lg sm:text-xl text-white font-semibold">Add New Candidate</h2>
@@ -116,16 +144,16 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
               </label>
               <input
                 type="text"
-                name="experience"
-                value={formData.experience}
+                name="yearsOfExperience"
+                value={formData.yearsOfExperience}
                 onChange={handleChange}
                 className={`w-full p-3 border rounded-lg bg-white bg-opacity-80 backdrop-blur-sm ${
-                  errors.experience ? 'border-red-500' : 'border-gray-300'
+                  errors.yearsOfExperience ? 'border-red-500' : 'border-gray-300'
                 } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base`}
                 placeholder="0"
               />
-              {errors.experience && (
-                <p className="text-red-500 text-xs mt-1">{errors.experience}</p>
+              {errors.yearsOfExperience && (
+                <p className="text-red-500 text-xs mt-1">{errors.yearsOfExperience}</p>
               )}
             </div>
 
@@ -164,9 +192,11 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
                 } focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base`}
               >
                 <option value="">Select Position</option>
-                {positions.map(pos => (
-                  <option key={pos} value={pos}>{pos}</option>
-                ))}
+                  {Object.entries(positions).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
               </select>
               {errors.position && (
                 <p className="text-red-500 text-xs mt-1">{errors.position}</p>
@@ -225,11 +255,12 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
                   name="declaration"
                   checked={formData.declaration}
                   onChange={handleChange}
-                  className="w-4 h-4 border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 bg-white"
+                  className="w-4 h-4 border-2 cursor-pointer border-gray-300 rounded focus:ring-blue-500 focus:ring-2 bg-white"
                 />
               </div>
               <div className="flex-1">
-                <label className="text-sm text-gray-700 leading-relaxed cursor-pointer">
+                <label  
+                  className="text-sm text-gray-700 leading-relaxed cursor-pointer">
                   I hereby declare that the above information is true to the best of my knowledge and belief
                 </label>
                 {errors.declaration && (
@@ -250,7 +281,7 @@ const AddCandidateForm = ({ isOpen, onClose, onSubmit }) => {
             </button>
             <button
               type='submit'
-              className="px-6 py-2.5 bg-purple-800 text-white rounded-lg hover:bg-purple-900 flex items-center justify-center transition-all text-sm sm:text-base font-medium order-1 sm:order-2"
+              className="px-6 py-2.5 bg-purple-900 text-white rounded-lg hover:bg-purple-800 flex items-center justify-center transition-all text-sm sm:text-base font-medium order-1 sm:order-2"
             >
               <Upload className="w-4 h-4 mr-2" />
               Save Candidate
